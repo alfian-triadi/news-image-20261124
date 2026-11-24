@@ -18,5 +18,11 @@ const head = readFileSync(source).subarray(0, 8);
 if (!head.equals(PNG_MAGIC)) {
   throw new Error("entry.png is not a PNG file (bad magic bytes)");
 }
+const ihdr = readFileSync(source).subarray(16, 24);
+const width = ihdr.readUInt32BE(0);
+const height = ihdr.readUInt32BE(4);
+if (width > 1024 || height > 1024) {
+  throw new Error(`entry.png is ${width}x${height}, over the 1024x1024 dimension limit`);
+}
 mkdirSync(outDir, { recursive: true });
 copyFileSync(source, join(outDir, "entry.png"));
